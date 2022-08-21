@@ -68,3 +68,17 @@ export const reqAddressInfo = () => request({ url: '/user/userAddress/auth/findU
 
 // 获取订单交易信息 /api/order/auth/trade
 export const reqOrderInfo = () => request({ url: '/order/auth/trade', method: 'get' })
+
+// 提交订单 /api/order/auth/submitOrder?tradeNo={tradeNo} post
+export const reqSubmitOrder = (tradeNo, data) => request({ url: `/order/auth/submitOrder?tradeNo=${tradeNo}`, data, method: 'post' })
+
+// 获取订单支付信息 /api/payment/weixin/createNative/{orderId} get
+export const reqPayInfo = (orderId) => request({ url: `/payment/weixin/createNative/${orderId}`, method: 'get' })
+
+// 查询支付订单状态  /api/payment/weixin/queryPayStatus/{orderId} get
+export const reqPayStatus = (orderId) => request({ url: `/payment/weixin/queryPayStatus/${orderId}`, method: 'get' })
+
+// 获取个人中心我的订单数据  /api/order/auth/{page}/{limit} get
+export const reqMyOrderList = (page, limit) => request({ url: `/order/auth/${page}/${limit}`, method: 'get' })
+
+

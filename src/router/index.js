@@ -13,6 +13,12 @@ const Detail = () => import('@/views/Detail/Detail.vue')
 const AddCartSuccess = () => import('@/views/AddCartSuccess/AddCartSuccess.vue')
 const ShopCart = () => import('@/views/ShopCart/ShopCart.vue')
 const Trade = () => import('@/views/Trade/Trade.vue')
+const Pay = () => import('@/views/Pay/Pay.vue')
+const PaySuccess = () => import('@/views/PaySuccess/PaySuccess.vue')
+const Center = () => import('@/views/Center/Center.vue')
+// 二级路由组件
+const MyOrder = () => import('@/views/Center/myOrder')
+const GroupOrder = () => import('@/views/Center/groupOrder')
 
 // 解决编程式导航抛出NavigationDuplicated的警告错误
 // 1.先把VueRouter原型对象的push方法保存一份
@@ -89,7 +95,54 @@ const routes = [
 	{
 		path: '/trade',
 		component: Trade,
+		meta: { show: true },
+		// 路由独享守卫
+		beforeEnter: (to, from, next) => {
+			// 只有从购物车页面才能跳转到交易页面
+			if (from.path == '/shopcart') {
+				next()
+			} else {
+				// 其他的路由停在当前
+				next(false)
+			}
+		}
+	},
+	{
+		path: '/pay',
+		component: Pay,
+		meta: { show: true },
+		beforeEnter: (to, from, next) => {
+			// 只有从交易页面才能跳转到支付页面
+			if (from.path == '/trade') {
+				next()
+			} else {
+				next(false)
+			}
+		}
+	},
+	{
+		path: '/paysuccess',
+		component: PaySuccess,
 		meta: { show: true }
+	},
+	{
+		path: '/center',
+		component: Center,
+		meta: { show: true },
+		children: [
+			{
+				path: 'myorder',
+				component: MyOrder
+			},
+			{
+				path: 'grouporder',
+				component: GroupOrder
+			},
+			{
+				path: '',
+				redirect: 'myorder'
+			}
+		]
 	}
 ]
 
@@ -130,8 +183,16 @@ router.beforeEach(async (to, from, next) => {
 			}
 		}
 	} else {
-		// 未登录
-		next()
+		// 未登录时，访问购物车（shopcart）、交易页(trade)、支付页(pay、paysuccess)、用户中心(center)会自动跳转至登录页
+		let toPath = to.path
+		if (toPath.indexOf('/shopcart') != -1 || toPath.indexOf('/trade') != -1
+			|| toPath.indexOf('/pay') != -1 || toPath.indexOf('/center') != -1) {
+			// 把要去的路径放到query参数中，对于login组件来说，通过判断当前路由中是否含有redirect这个query参数，来决定路由的跳转
+			next('/login?redirect=' + toPath)
+		} else {
+			// 未登录，且去的不是上面那些路由，放行
+			next()
+		}
 	}
 })
 
